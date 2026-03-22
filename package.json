@@ -1,0 +1,18 @@
+{
+  "name": "tourism-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "نظام إدارة الرحلات السياحية والبكجات",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp", "@prisma/client", "@prisma/engines", "prisma"]
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter client --filter server dev",
+    "dev:server": "pnpm --filter server dev",
+    "dev:client": "pnpm --filter client dev",
+    "build": "pnpm --filter server build && pnpm --filter client build",
+    "db:migrate": "pnpm --filter server db:migrate",
+    "db:seed": "pnpm --filter server db:seed",
+    "db:studio": "pnpm --filter server db:studio"
+  }
+}

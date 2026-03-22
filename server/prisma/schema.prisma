@@ -1,0 +1,350 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+  CUSTOMER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  INITIATED
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  VOIDED
+}
+
+enum PaymentMethod {
+  MADA
+  VISA
+  MASTERCARD
+  APPLE_PAY
+  STC_PAY
+}
+
+enum TripStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  CANCELLED
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMATION
+  BOOKING_CANCELLATION
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  REFUND_PROCESSED
+  TRIP_REMINDER
+  PROMOTIONAL
+  CUSTOM
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  phone        String?   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         UserRole  @default(CUSTOMER)
+  isActive     Boolean   @default(true)
+  avatarUrl    String?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  bookings      Booking[]
+  notifications UserNotification[]
+  sessions      Session[]
+
+  assignedBy       String?
+  assignedByUser   User?  @relation("EmployeeAssignment", fields: [assignedBy], references: [id])
+  assignedEmployees User[] @relation("EmployeeAssignment")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model GuestBooker {
+  id        String   @id @default(uuid())
+  email     String
+  phone     String
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+
+  bookings Booking[]
+
+  @@index([email])
+  @@map("guest_bookers")
+}
+
+model Trip {
+  id               String     @id @default(uuid())
+  title            String
+  slug             String     @unique
+  description      String
+  shortDescription String?
+  destination      String
+  departureCity    String
+  departureDate    DateTime
+  returnDate       DateTime
+  duration         Int
+  pricePerPerson   Decimal    @db.Decimal(10, 2)
+  childPrice       Decimal?   @db.Decimal(10, 2)
+  totalSeats       Int
+  availableSeats   Int
+  status           TripStatus @default(DRAFT)
+  isFeatured       Boolean    @default(false)
+
+  inclusions  String[]
+  exclusions  String[]
+  itinerary   Json?
+  meetingPoint String?
+  meetingTime  String?
+  terms        String?
+
+  categoryId String?
+  category   TripCategory? @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       TripImage[]
+  bookings     Booking[]
+  pricingTiers PricingTier[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([departureDate])
+  @@index([destination])
+  @@map("trips")
+}
+
+model TripCategory {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  icon      String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  trips Trip[]
+
+  @@map("trip_categories")
+}
+
+model TripImage {
+  id        String  @id @default(uuid())
+  tripId    String
+  trip      Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([tripId])
+  @@map("trip_images")
+}
+
+model PricingTier {
+  id          String  @id @default(uuid())
+  tripId      String
+  trip        Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  name        String
+  price       Decimal @db.Decimal(10, 2)
+  description String?
+  maxQuantity Int?
+
+  @@index([tripId])
+  @@map("pricing_tiers")
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  bookingNumber   String        @unique
+  tripId          String
+  trip            Trip          @relation(fields: [tripId], references: [id])
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+  guestBookerId   String?
+  guestBooker     GuestBooker?  @relation(fields: [guestBookerId], references: [id])
+  status          BookingStatus @default(PENDING)
+  numberOfPersons Int
+  totalAmount     Decimal       @db.Decimal(10, 2)
+  discountAmount  Decimal       @default(0) @db.Decimal(10, 2)
+  finalAmount     Decimal       @db.Decimal(10, 2)
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  specialRequests String?
+  notes           String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  confirmedAt DateTime?
+  cancelledAt DateTime?
+
+  passengers Passenger[]
+  payment    Payment?
+
+  @@index([bookingNumber])
+  @@index([userId])
+  @@index([tripId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("bookings")
+}
+
+model Passenger {
+  id        String  @id @default(uuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  firstName String
+  lastName  String
+  age       Int?
+  idNumber  String?
+  tierName  String?
+  createdAt DateTime @default(now())
+
+  @@index([bookingId])
+  @@map("passengers")
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  bookingId        String        @unique
+  booking          Booking       @relation(fields: [bookingId], references: [id])
+  moyasarPaymentId String?       @unique
+  status           PaymentStatus @default(INITIATED)
+  method           PaymentMethod?
+  amount           Decimal       @db.Decimal(10, 2)
+  currency         String        @default("SAR")
+  fee              Decimal?      @db.Decimal(10, 2)
+  refundedAmount   Decimal       @default(0) @db.Decimal(10, 2)
+  moyasarResponse  Json?
+  callbackData     Json?
+  paidAt           DateTime?
+  refundedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  refunds Refund[]
+
+  @@index([moyasarPaymentId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model Refund {
+  id              String   @id @default(uuid())
+  paymentId       String
+  payment         Payment  @relation(fields: [paymentId], references: [id])
+  moyasarRefundId String?
+  amount          Decimal  @db.Decimal(10, 2)
+  reason          String?
+  processedBy     String?
+  createdAt       DateTime @default(now())
+
+  @@index([paymentId])
+  @@map("refunds")
+}
+
+model Coupon {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  description     String?
+  discountPercent Decimal?  @db.Decimal(5, 2)
+  discountAmount  Decimal?  @db.Decimal(10, 2)
+  minOrderAmount  Decimal?  @db.Decimal(10, 2)
+  maxDiscount     Decimal?  @db.Decimal(10, 2)
+  maxUses         Int?
+  usedCount       Int       @default(0)
+  isActive        Boolean   @default(true)
+  expiresAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  bookings Booking[]
+
+  @@index([code])
+  @@map("coupons")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  title     String
+  body      String
+  type      NotificationType
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  recipients UserNotification[]
+
+  @@map("notifications")
+}
+
+model UserNotification {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, notificationId])
+  @@index([userId, isRead])
+  @@map("user_notifications")
+}
+
+model CompanySettings {
+  id            String   @id @default("singleton")
+  companyName   String
+  companyNameEn String?
+  phone         String?
+  email         String?
+  address       String?
+  logoUrl       String?
+  taxNumber     String?
+  termsOfService String?
+  privacyPolicy  String?
+  socialMedia    Json?
+  updatedAt      DateTime @updatedAt
+
+  @@map("company_settings")
+}

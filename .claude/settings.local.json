@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/\")",
+      "WebSearch",
+      "WebFetch(domain:docs.moyasar.com)",
+      "WebFetch(domain:api.moyasar.com)",
+      "Bash(npm install:*)",
+      "Bash(pnpm --version)",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src/\")",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/\")",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/prisma/\")",
+      "Bash(find \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src\" -type f)",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src/services/\")",
+      "Bash(npx tsc:*)",
+      "Bash(npx typescript:*)",
+      "Bash(find \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src/\" -type f -name \"*.ts\")",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida\" -type f -name \"*.json\" -o -name \"*.yaml\" -o -name \"*.yml\" -o -name \".gitignore\")",
+      "Bash(ls -la '/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/')",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida\" -maxdepth 2 -type d)",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server\" -type f -name \"*.json\" -o -name \"*.ts\" -o -name \"*.prisma\")",
+      "Bash(ls -la \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/\")",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src\" -type f)",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/shared\" -type f)",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida\" -maxdepth 1 -type d)",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src/controllers\" -type f)",
+      "Bash(find \"/c/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/server/src\" -type f -name \"*.ts\")",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/\")",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(ls \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/.claude/\")",
+      "Bash(pnpm --filter client build)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where pnpm:*)",
+      "Bash(where node:*)",
+      "Bash(ls -la \"C:/Users/musab nage/Documents/New folder \\(2\\)/.claude/worktrees/nervous-almeida/client/dist/\")",
+      "Bash(pnpm --filter server build)",
+      "Bash(npx prisma:*)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}

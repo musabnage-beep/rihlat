@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: rihlat-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd server && npm install && npx prisma generate && npm run build
+    startCommand: cd server && npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: MOYASAR_SECRET_KEY
+        sync: false
+      - key: MOYASAR_PUBLISHABLE_KEY
+        sync: false
+      - key: MOYASAR_CALLBACK_URL
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: rihlat-db
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"
