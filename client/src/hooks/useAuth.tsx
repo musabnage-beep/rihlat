@@ -5,8 +5,8 @@ import type { UserProfile } from 'shared';
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => Promise<void>;
+  login: (email: string, password: string) => Promise<UserProfile>;
+  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => Promise<UserProfile>;
   logout: () => Promise<void>;
   isAdmin: boolean;
 }
@@ -29,23 +29,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<UserProfile> => {
     const { data } = await api.post('/auth/login', { email, password });
     localStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
     setUser(data.user);
+    return data.user;
   }, []);
 
-  const register = useCallback(async (formData: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => {
+  const register = useCallback(async (formData: { email: string; password: string; firstName: string; lastName: string; phone?: string }): Promise<UserProfile> => {
     const { data } = await api.post('/auth/register', formData);
     localStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
     setUser(data.user);
+    return data.user;
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      await api.post('/auth/logout');
+      const refreshToken = localStorage.getItem('refreshToken');
+      await api.post('/auth/logout', { refreshToken });
     } finally {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       setUser(null);
     }
   }, []);

@@ -5,7 +5,7 @@ import { Plane } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,9 +15,14 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const loggedInUser = await login(email, password);
       toast.success('تم تسجيل الدخول بنجاح');
-      navigate('/');
+      const role = loggedInUser?.role;
+      if (role === 'ADMIN' || role === 'EMPLOYEE') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'خطأ في تسجيل الدخول');
     } finally {

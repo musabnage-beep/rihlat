@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Redirect /api requests to api/index.php
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Serve uploaded files directly
+RewriteRule ^uploads/(.*)$ uploads/$1 [L]
+
+# Deny access to config and internal files
+RewriteRule ^(config|controllers|services|middleware|utils|\.env)/ - [F,L]
+RewriteRule ^\.env$ - [F,L]
+RewriteRule ^schema\.sql$ - [F,L]
+
+# SPA routing - serve index.html for all non-file routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/uploads/
+RewriteRule ^(.*)$ index.html [QSA,L]
